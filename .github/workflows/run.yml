@@ -3,6 +3,7 @@ name: Check DRL 15m
 on:
   schedule:
     - cron: '*/15 * * * *'
+  workflow_dispatch: # Thêm dòng này để hiện nút Run thủ công trên web
 
 jobs:
   run-bot:
@@ -20,4 +21,3 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python bot.py
-        
