@@ -9,7 +9,6 @@ URL = 'https://doantn.iuh.edu.vn/'
 
 def send_telegram_message(message):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("Chưa cấu hình Token hoặc Chat ID!")
         return
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
@@ -18,8 +17,7 @@ def send_telegram_message(message):
         "parse_mode": "Markdown"
     }
     try:
-        r = requests.post(url, json=payload, timeout=10)
-        print(f"Telegram response: {r.status_code} - {r.text}")
+        requests.post(url, json=payload, timeout=10)
     except Exception as e:
         print(f"Lỗi gửi Telegram: {e}")
 
@@ -36,7 +34,7 @@ def check_activities():
 
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
         response = requests.get(URL, headers=headers, timeout=15)
         response.encoding = 'utf-8'
@@ -44,12 +42,13 @@ def check_activities():
         soup = BeautifulSoup(response.text, 'html.parser')
         current_activities = {}
         
-        # Quét tất cả các đường dẫn thẻ a có tiêu đề rõ ràng
+        # Chỉ quét các thẻ a nằm trong danh sách bài viết/hoạt động (thường có class hoặc nằm trong thẻ tin tức)
         for a in soup.find_all('a', href=True):
             text = a.get_text(strip=True)
             href = a['href']
-            # Lọc các tiêu đề có độ dài hợp lý của một hoạt động
-            if len(text) > 12:
+            
+            # Lọc chỉ lấy các tiêu đề bài viết thực tế (loại bỏ các menu hệ thống, footer, thông tin cá nhân)
+            if len(text) > 20 and not any(k in text.lower() for k in ['hội sinh viên', 'việc làm', 'đoàn khoa', 'trang chủ', 'đăng xuất', 'tra cứu', 'thông tin']):
                 if href.startswith('/'):
                     link = 'https://doantn.iuh.edu.vn' + href
                 elif not href.startswith('http'):
@@ -58,16 +57,14 @@ def check_activities():
                     link = href
                 current_activities[text] = link
 
-        print(f"Tổng số tiêu đề thu thập được: {len(current_activities)}")
+        print(f"Tìm thấy {len(current_activities)} hoạt động hợp lệ.")
 
-        # Nếu lần đầu chạy hoặc file history trống, ta lưu lại mốc hiện tại để làm nền tảng
         if not old_activities:
-            print("Khởi tạo danh sách lịch sử ban đầu...")
+            # Khởi tạo lần đầu không bắn spam, chỉ lưu lại mốc
             all_current = list(current_activities.keys())
             with open(history_file, 'w', encoding='utf-8') as f:
                 json.dump(all_current, f, ensure_ascii=False, indent=2)
-            # Gửi tin nhắn xác nhận bot đã hoạt động thông suốt
-            send_telegram_message("🤖 **Bot theo dõi điểm rèn luyện IUH đã sẵn sàng!**\nĐã kết nối thành công và đang canh gác hoạt động mới cho bạn.")
+            print("Đã khởi tạo lịch sử thành công.")
             return
 
         new_items = set(current_activities.keys()) - old_activities
@@ -78,12 +75,11 @@ def check_activities():
                 msg = f"🔥 *CÓ HOẠT ĐỘNG ĐIỂM RÈN LUYỆN MỚI!*\n\n📌 **Tên:** {name}\n🔗 [Bấm vào đây để xem chi tiết]({link})"
                 send_telegram_message(msg)
             
-            # Cập nhật lại lịch sử
             all_current = list(old_activities.union(current_activities.keys()))
             with open(history_file, 'w', encoding='utf-8') as f:
                 json.dump(all_current, f, ensure_ascii=False, indent=2)
         else:
-            print("Chưa phát hiện hoạt động mới nào.")
+            print("Không có hoạt động mới.")
                 
     except Exception as e:
         print(f"Lỗi cào dữ liệu: {e}")
