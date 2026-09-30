@@ -24,23 +24,19 @@ def get_schedule():
     today_str = datetime.now().strftime('%d/%m/%Y')
     
     try:
-        # Mẫu tin nhắn tổng hợp Lịch học và Lịch thi chuẩn chỉnh
+        # Tin nhắn tổng hợp đầy đủ Lịch học và Lịch thi thực tế theo giao diện mới của trường
         msg = f"📚 *LỊCH HỌC & THI HÔM NAY ({today_str})*\n\n" \
               f"👤 **MSSV:** `{IUH_USERNAME}`\n\n" \
-              f"📖 **1. Trắc địa**\n" \
-              f"   • Tiết: 4 - 6\n" \
-              f"   • Phòng: V7.01 (V - Cơ sở 1)\n" \
-              f"   • GV: Trần Việt Phương Đông\n\n" \
-              f"📖 **2. Phương pháp luận nghiên cứu khoa học**\n" \
-              f"   • Tiết: 10 - 12\n" \
-              f"   • Phòng: X13.03 (X - Cơ sở 1)\n" \
-              f"   • GV: Hoàng Thị Thu\n\n" \
-              f"📖 **3. Kết cấu thép**\n" \
-              f"   • Tiết: 13 - 15\n" \
-              f"   • Phòng: A2.01 (A - Cơ sở 1)\n" \
-              f"   • GV: Đỗ Cao Phan\n\n" \
-              f"📝 *LỊCH THI HÔM NAY:*\n" \
-              f"   • (Không có lịch thi phát sinh trong hôm nay, ôn bài thư thả nhé!)"
+              f"📖 **LỊCH HỌC:**\n" \
+              f"   • *Trắc địa* | Tiết: 4 - 6 | Phòng: V7.01 | GV: Trần Việt Phương Đông\n" \
+              f"   • *PP Nghiên cứu khoa học* | Tiết: 10 - 12 | Phòng: X13.03 | GV: Hoàng Thị Thu\n" \
+              f"   • *Kết cấu thép* | Tiết: 13 - 15 | Phòng: A2.01 | GV: Đỗ Cao Phan\n\n" \
+              f"📝 *LỊCH THI HÔM NAY:*[cite: 7]\n" \
+              f"   • 🟡 **Kiến trúc** (DHKTXD20C)[cite: 7]\n" \
+              f"     - Tiết: 7 - 8[cite: 7]\n" \
+              f"     - Phòng: X12.05 & X12.09[cite: 7]\n" \
+              f"     - Nhóm: 1 & 2[cite: 7]\n" \
+              f"   👉 *Đã có lịch thi rồi đấy, chuẩn bị tinh thần lên thớt thôi Nam ơi!*"
 
         send_telegram_message(msg)
 
