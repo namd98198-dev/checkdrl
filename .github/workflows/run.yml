@@ -1,12 +1,13 @@
-name: Check DRL 15m
+name: Check DRL & Schedule Bot
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
-  workflow_dispatch: # Thêm dòng này để hiện nút Run thủ công trên web
+    - cron: '*/15 * * * *'   # Chạy check điểm rèn luyện mỗi 15 phút
+    - cron: '0 23,5 * * *'   # Chạy nhắc lịch học (6h sáng và 12h trưa giờ VN)
+  workflow_dispatch:         # Cho phép hiện nút Run thủ công ngay lập tức
 
 jobs:
-  run-bot:
+  run-bots:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,8 +17,17 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: pip install requests beautifulsoup4
-      - name: Run script
+      
+      - name: Run DRL Bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python bot.py
+
+      - name: Run Schedule Bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          IUH_USERNAME: ${{ secrets.IUH_USERNAME }}
+          IUH_PASSWORD: ${{ secrets.IUH_PASSWORD }}
+        run: python schedule_bot.py
